@@ -207,7 +207,7 @@ client.on("ready", async () => {
 });
 
 client.on("message", async (message) => {
-    // console.log("message: ", message)
+    console.log("message: ", message)
     var type = message.type
     if(type !== 'chat') {
         return true
