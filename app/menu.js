@@ -1,7 +1,7 @@
 (function(scope) {
     "use strict";
 
-    const { app, Menu, MenuItem, BrowserWindow } = require('electron');
+    const { app, Menu, MenuItem, BrowserWindow, ipcRenderer } = require('electron');
 
 
     var template = [
@@ -42,7 +42,7 @@
                     label: _('Contacts'),
                     accelerator: 'CmdOrCtrl+R',
                     click: function(item) {
-                        console.log(item);
+                        console.log("Contacts functionality")
                     }
                 }
 

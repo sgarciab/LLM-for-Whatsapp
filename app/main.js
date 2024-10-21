@@ -3,6 +3,8 @@ const qrcode = require("qrcode-terminal");
 const fs = require("fs");
 const path = require('path');
 
+const { MessageMedia } = require('whatsapp-web.js');
+
 
 const { shell } = require('electron');
 
@@ -20,6 +22,8 @@ const { Client } = require("whatsapp-web.js");
 const client = new Client({ puppeteer: { headless: false,args: ['--no-sandbox', '--disable-setuid-sandbox']} });
 
 const { getLLMMessage } = require('./js/openai');
+
+const { sendMessagesToLabeledChats } = require('./js/custom/posa');
 
 global.mainWindow = null;
 
@@ -70,6 +74,7 @@ function sendWhatsAppMessage(contactId, message) {
         message
     );
 }
+
 
 function sendUpdatedContactsToRenderer() {
     if (global.mainWindow && global.mainWindow.webContents) {
@@ -191,9 +196,15 @@ client.on("ready", async () => {
     console.log("Client is ready!");
     global.mainWindow.webContents.send('whatsapp-ready');
     var contacts = await client.getContacts();
-
+    let counter = 0;
     for (const contact of contacts) {
-        const fullcontact = await client.getContactById(contact.id._serialized);
+
+        // const fullcontact = await client.getContactById(contact.id._serialized);
+        // if (fullcontact == null){
+        //     continue;
+        // }
+        
+        const fullcontact = contact;
         fullContacts.push({
             id: fullcontact.id._serialized,
             number: fullcontact.number,
@@ -202,6 +213,8 @@ client.on("ready", async () => {
             category: fullcontact.isBusiness || fullcontact.isEnterprise ? 'Business' : 'Private',
             messages: []
         });
+        counter++;
+        console.log("Progress:"+ counter+ " out of " + contacts.length)
     }
     global.mainWindow.webContents.send('contacts-data', { fullContacts, llmContacts });
 });
@@ -268,4 +281,26 @@ ipcMain.on('check-contacts-on-refresh', (event) => {
 });
 
 
+ipcMain.on('send-posa-messages', async (event) => {
+    const prefixFilter = 'Amore'; // Replace with your label name
+
+    let messagesArray = [];
+    messagesArray.push(`¡Hola! 🎃 Esperamos que estés bien. 
+👻 Queremos recordarte que *aún tienes la oportunidad* de lucir una sonrisa radiante. 
+✨ Este Halloween, tenemos una *oferta especial para ti*`); 
+    messagesArray.push(`🎃👻 *¡Blanqueamiento Dental de Miedo!* 👻🎃
+Este Halloween, no asustes a nadie con una sonrisa opaca. ¡Luce unos dientes tan brillantes como la luna llena! 🌕✨
+💀 *Promoción Especial:*
+🦷 Antes: $ 120
+👾 Ahora: *Blanqueamiento Dental Completo + Diagnóstico Gratis*
+*¡Por solo $90!*
+💥 *Válido hasta el 31 de Octubre* 💥
+Transforma tu sonrisa y déjalos hechizados 😁. ¡Reserva tu cita ahora antes de que esta oferta desaparezca como un fantasma! 🧙‍♀💨
+¡No te quedes con una sonrisa de espanto! 🦷🖤`); 
+    messagesArray.push(`🦷Estos son *resultados reales* de nuestros pacientes:`); 
+    messagesArray.push(await MessageMedia.fromFilePath('./test_images/2.jpg'));
+    messagesArray.push(await MessageMedia.fromFilePath('./test_images/1.jpg'));
+    // Call the function to send messages and images
+    await sendMessagesToLabeledChats(client, prefixFilter, messagesArray, fullContacts);
+});
 

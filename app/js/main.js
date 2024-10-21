@@ -6,6 +6,8 @@ const path = require('path');
 const {ipcRenderer} = require('electron');
 const fs = require("fs");
 
+const posaMessagesButton = document.getElementById('posa-messages');
+
 let fullContacts = [];
 let llmContacts = [];
 
@@ -82,6 +84,9 @@ function startConversation(contactId, initialMessage) {
     ipcRenderer.send('start-conversation', { contactId, initialMessage });
 }
 
+function sendPosaMessages() {
+    ipcRenderer.send('send-posa-messages');
+}
 
 
 function addSystemMessageToContact(contactId) {
@@ -167,7 +172,6 @@ ipcRenderer.on('contacts-update', (event, data) => {
     llmContacts = data.llmContacts;
 });
 
-
-
-
-
+posaMessagesButton.addEventListener('click', () => {
+    ipcRenderer.send('send-posa-messages');
+});
