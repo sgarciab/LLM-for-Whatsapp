@@ -19,8 +19,14 @@ const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const menuTemplate = require('./menu.js');
 
 const { Client } = require("whatsapp-web.js");
-const client = new Client({ puppeteer: { headless: false,args: ['--no-sandbox', '--disable-setuid-sandbox']} });
+// const client = new Client({ puppeteer: { headless: false,args: ['--no-sandbox', '--disable-setuid-sandbox']} });
 
+const client = new Client({
+    puppeteer: {
+        headless: false,
+        executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    }
+})
 const { getLLMMessage } = require('./js/openai');
 
 const { sendMessagesToLabeledChats } = require('./js/custom/posa');
@@ -282,24 +288,23 @@ ipcMain.on('check-contacts-on-refresh', (event) => {
 
 
 ipcMain.on('send-posa-messages', async (event) => {
-    const prefixFilter = 'Amore'; // Replace with your label name
+    const prefixFilter = 'Posa Hermosa'; // Replace with your label name
 
     let messagesArray = [];
-    messagesArray.push(`¡Hola! 🎃 Esperamos que estés bien. 
-👻 Queremos recordarte que *aún tienes la oportunidad* de lucir una sonrisa radiante. 
-✨ Este Halloween, tenemos una *oferta especial para ti*`); 
-    messagesArray.push(`🎃👻 *¡Blanqueamiento Dental de Miedo!* 👻🎃
-Este Halloween, no asustes a nadie con una sonrisa opaca. ¡Luce unos dientes tan brillantes como la luna llena! 🌕✨
-💀 *Promoción Especial:*
-🦷 Antes: $ 120
-👾 Ahora: *Blanqueamiento Dental Completo + Diagnóstico Gratis*
-*¡Por solo $90!*
-💥 *Válido hasta el 31 de Octubre* 💥
-Transforma tu sonrisa y déjalos hechizados 😁. ¡Reserva tu cita ahora antes de que esta oferta desaparezca como un fantasma! 🧙‍♀💨
-¡No te quedes con una sonrisa de espanto! 🦷🖤`); 
-    messagesArray.push(`🦷Estos son *resultados reales* de nuestros pacientes:`); 
-    messagesArray.push(await MessageMedia.fromFilePath('./test_images/2.jpg'));
-    messagesArray.push(await MessageMedia.fromFilePath('./test_images/1.jpg'));
+    messagesArray.push(await MessageMedia.fromFilePath('./test_images/bruxismo.mp4'));
+    messagesArray.push(`😬 ¿ *Aprietas o rechinas* los dientes? Podrías tener bruxismo.`); 
+    messagesArray.push(`¿Tienes algunos de estos síntomas?
+        
+😫 *Dolor* de mandíbula o cabeza al despertar.
+💥 *Dientes desgastados* o fracturados.
+😬 *Tensión* en la cara o ruidos en la mandíbula.
+
+🚨 Si no se trata, puede causar daños graves en tus dientes y articulaciones.
+`); 
+    messagesArray.push(`👩‍⚕️ Un ortodoncista puede ayudarte con férulas, ortodoncia u otros tratamientos.
+
+📅 Agenda tu cita y recibe un diagnóstico para cuidar tu sonrisa. ¡Escríbenos! 🦷💙`); 
+    
     // Call the function to send messages and images
     await sendMessagesToLabeledChats(client, prefixFilter, messagesArray, fullContacts);
 });

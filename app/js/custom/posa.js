@@ -4,25 +4,24 @@ const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 async function sendMessagesToLabeledChats(client, labelName, messagesArray, fullContacts ) {
     try {
-      
-
         const filteredContacts = fullContacts.filter(fullContact => 
         {   
             return fullContact?.name?.includes(labelName) 
-        });
-        
-        console.log("labeledChats sendMessagesToLabeledChats")
-        console.log(filteredContacts)
+        });    
 
         // Send the message and the image
-        filteredContacts.forEach(async (chat) => {
+        for (let i = 0; i < filteredContacts.length; i++) {
+            let chat = filteredContacts[i];
             console.log(`Sending message to: ${chat.name}`);
-            messagesArray.forEach(async(message)=>{
+        
+            for (let j = 0; j < messagesArray.length; j++) {
+                let message = messagesArray[j];
                 await client.sendMessage(chat.id, message);
-            })
-            console.log(`Text message sent to ${chat.name}`);
-            await sleep(3000)
-        });
+                await sleep(300);
+            }
+        
+            console.log(`Text message sent to ${chat.name}. ${i+1} of ${filteredContacts.length}`);
+        }
 
     } catch (error) {
         console.error('Error sending messages:', error);
